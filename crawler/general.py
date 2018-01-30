@@ -33,7 +33,6 @@ def delete_file_content(path):
     with open(path, 'w'):
         pass
 
-
 def file_to_set(file_name):
     results = set()
     with open(file_name, 'r') as f:
