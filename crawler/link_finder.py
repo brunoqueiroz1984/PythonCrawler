@@ -5,7 +5,6 @@ Created on 31 de jan de 2018
 '''
 from html.parser import HTMLParser
 from urllib import parse
-from lib2to3.fixer_util import Attr
 
 class LinkFinder(HTMLParser):
     
@@ -27,4 +26,3 @@ class LinkFinder(HTMLParser):
     
     def error(self, message):
         pass
-
