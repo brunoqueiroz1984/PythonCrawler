@@ -27,7 +27,7 @@ def create_spiders():
         
 def work():
     while True:
-        url = queue._get()
+        url = queue.get()
         Spider.crawl_page(threading.current_thread().name, url)
         queue.task_done()
 
