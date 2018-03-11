@@ -5,6 +5,7 @@ Created on 30 de jan de 2018
 '''
 import os
 from _io import open
+from main import PROJECT_NAME
 
 def create_project_dir(directory):
     if not os.path.exists(directory):
@@ -19,11 +20,15 @@ def create_data_files(project_name, base_url):
     if not os.path.isfile(crawled):
         write_file(crawled, "")
         
+def create_csv_file(project_name, eventsData):
+    events = os.path.join(project_name, 'events.csv')
+    if not os.path.isfile(events):
+        write_file(events, eventsData)
 
 def write_file(path, data):
-    f = open(path, 'w')
-    f.write(data)
-    f.close()
+    with open(path, 'w') as f:
+        f.write(data)
+    
     
 def append_to_file(path, data):
     with open(path, 'a') as file:

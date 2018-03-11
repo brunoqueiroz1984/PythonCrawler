@@ -9,12 +9,12 @@ from spider import Spider
 from domain import *
 from general import *
 
-PROJECT_NAME = 'falandotec teste'
-HOMEPAGE = 'https://falandodetecnologia.com/'
+PROJECT_NAME = 'Celebratio'
+HOMEPAGE = 'https://agendasorocaba.com.br/baladas/'
 DOMAIN_NAME = get_domain_name(HOMEPAGE)
 QUEUE_FILE = PROJECT_NAME + '/queue.txt'
 CRAWLED_FILE = PROJECT_NAME + '/crawled.txt'
-NUMBER_OF_THREADS = 6
+NUMBER_OF_THREADS = 1
 
 queue = Queue()
 Spider(PROJECT_NAME, HOMEPAGE, DOMAIN_NAME)
