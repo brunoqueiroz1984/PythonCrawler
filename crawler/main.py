@@ -43,8 +43,13 @@ def gather_events(page_url):
 
 events = gather_events(HOMEPAGE)
 collection = db['events']
-
+ 
 for event in events:
-    collection.insert(event)
+    if(collection.find({'name':event['name']}).count() == 0 ):
+        event['type'] = 'balada'
+        collection.insert_one(event)
+    else:
+        print('test')
+    
 
 print("events inserted")
