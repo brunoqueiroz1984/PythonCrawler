@@ -8,8 +8,6 @@ import requests
 
 class LinkFinder(HTMLParser):
     
-    
-    
     def __init__(self, base_url, page_url):
         super().__init__()
         self.base_url = base_url
@@ -21,6 +19,8 @@ class LinkFinder(HTMLParser):
         self.hasEvent = False
         self.isTitle = False
         self.isAddress = False
+        self.isLink = False
+        self.isImg = False
         self.dic = {}
 
     def handle_starttag(self, tag, attrs):
@@ -28,6 +28,20 @@ class LinkFinder(HTMLParser):
             for (attribute, value) in attrs:
                 if attribute == 'class' and value == 'loc_tit':
                     self.isEvent = 2
+        
+        if tag == 'ul':
+            for (attribute, value) in attrs:
+                if attribute == 'class' and value == 'blocks blocks_locais':
+                    self.isLink = True
+        
+        if tag == 'div' and self.isLink:
+            for (attribute, value) in attrs:
+                if attribute == 'class' and value == 'loc_img':
+                    self.isImg = True
+                elif self.isImg and (attribute == 'style' or attribute == 'data-img'):
+                    self.dic['img'] = self.formatImgName(str(value))
+                    self.isImg = False
+        
         if self.isEvent > 0:
             if tag == 'h3' and self.isEvent > 0:
                 self.hasEvent = True
@@ -35,8 +49,8 @@ class LinkFinder(HTMLParser):
             if tag == 'p' and self.isEvent > 0:
                 self.hasEvent = True
                 self.isAddress = True
-                
-                
+        
+    
     def handle_data(self, data):
         if(self.hasEvent and self.isTitle):
             self.dic['name'] = data
@@ -50,6 +64,8 @@ class LinkFinder(HTMLParser):
         self.hasEvent=False
         self.isTitle = False
         self.isAddress = False
+        if tag == 'ul':
+            self.isLink = False
         if tag == 'div' and self.isEvent > 0:
             self.isEvent-=1
     
@@ -64,7 +80,12 @@ class LinkFinder(HTMLParser):
             return (latitude, longitude)
         else:
             return ('error', 'error')
-                    
+    
+    def formatImgName(self, imgName):
+        return imgName.replace("background-image:url(","").replace(");opacity:1;", "")
+        
+        
+    
     def page_links(self):
         return self.links
     
