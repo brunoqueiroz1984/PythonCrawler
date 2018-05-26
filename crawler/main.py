@@ -27,7 +27,7 @@ db.authenticate(DB_USER, DB_PASS)
 
 def gather_events(page_url):
         html_string =''
-        try:
+        if True:#try:
             response = urlopen(page_url)
             print('conected')
             if 'text/html' in response.getheader('Content-Type'):
@@ -35,21 +35,25 @@ def gather_events(page_url):
                 html_string = html_bytes.decode('utf-8')
             finder = LinkFinder(page_url, page_url)
             finder.feed(html_string)
-        except:
-            print('Error: can not crawl page')
-            return set()
+#         except:
+#             print('Error: can not crawl page')
+#             return set()
         return finder.get_events()
 
-
-events = gather_events(HOMEPAGE)
-collection = db['events']
- 
-for event in events:
-    if(collection.find({'name':event['name']}).count() == 0 ):
-        event['type'] = 'balada'
-        collection.insert_one(event)
-    else:
-        print('test')
+def saveDB(eventType):
+    for event in events:
+        if(collection.find({'name':event['name']}).count() == 0 ):
+            event['type'] = eventType
+            collection.insert_one(event)
+        else:
+            print('test')
     
+
+collection = db['events']
+
+events = gather_events('https://agendasorocaba.com.br/baladas/')
+saveDB('balada')
+events = gather_events('https://agendasorocaba.com.br/bares/')
+saveDB('bar')
 
 print("events inserted")

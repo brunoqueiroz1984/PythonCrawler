@@ -4,6 +4,7 @@ Created on 31 de jan de 2018
 @author: Bruno
 '''
 from html.parser import HTMLParser
+from urllib.request import urlopen
 import requests
 
 class LinkFinder(HTMLParser):
@@ -33,6 +34,12 @@ class LinkFinder(HTMLParser):
             for (attribute, value) in attrs:
                 if attribute == 'class' and value == 'blocks blocks_locais':
                     self.isLink = True
+                    
+        if tag == 'a' and self.isLink:
+            for (attribute, value) in attrs:
+                if attribute == 'href':
+                    self.dic = self.getDetails(value)
+                    
         
         if tag == 'div' and self.isLink:
             for (attribute, value) in attrs:
@@ -58,6 +65,7 @@ class LinkFinder(HTMLParser):
             self.dic['address'] = data
             self.dic['latitude'],self.dic['longitude'] = self.getCoordinates(data)
             self.events.append(self.dic)
+            print(self.dic)
             self.dic = {}
     
     def handle_endtag(self, tag):
@@ -68,6 +76,21 @@ class LinkFinder(HTMLParser):
             self.isLink = False
         if tag == 'div' and self.isEvent > 0:
             self.isEvent-=1
+    
+    def getDetails(self, link):
+        html_string =''
+        try:
+            response = urlopen(link)
+            if 'text/html' in response.getheader('Content-Type'):
+                html_bytes = response.read()
+                html_string = html_bytes.decode('utf-8')
+        except:
+            print('couldn`t get details')
+            return
+        finder = DetailFinder()
+        finder.feed(html_string)
+        return finder.getInfo()
+        
     
     def getCoordinates(self, address):
         api_key = 'AIzaSyAYHzy6jKAUjUcVGjnokOwBN65gkx6OfqE'
@@ -94,3 +117,73 @@ class LinkFinder(HTMLParser):
     
     def error(self, message):
         pass
+
+
+class DetailFinder(HTMLParser):
+    
+    def __init__(self):
+        super().__init__()
+        self.dic = {}
+        self.isDetail = False
+        self.isDetailText = False
+        self.isDetailServico = False
+        self.isTel = False
+        self.isTelData = False
+        self.getTel = False
+        self.isWebData = False
+        self.getSite = False
+        
+    def handle_starttag(self, tag, attrs):
+        if tag == 'div':
+            for (attribute, value) in attrs:
+                if attribute == 'class' and value =='bigcon':
+                    self.isDetail = True
+                    
+        if self.isDetail and tag == 'p':
+            self.isDetailText = True
+            
+        if self.isDetailText and tag == 'div':
+            for (attribute, value) in attrs:
+                if attribute == 'class' and value =='servico':
+                    self.isDetailText = False
+                    self.isDetailServico = True
+        if self.isDetailServico and tag == 'p':
+            for (attribute, value) in attrs:
+                if attribute == 'class' and value == 'tel':
+                    self.isTelData = True
+                elif attribute == 'class' and value == 'ste':
+                    self.isWebData = True
+                    
+        if self.isTelData and tag =='a':
+            self.getTel = True
+        elif self.isWebData and tag =='a':
+            self.getSite = True
+        
+    
+    
+    def handle_data(self, data):
+        text = ''
+#         if self.isDetailText:
+#             print('Texto: '+data)
+        #elif self.isDetailServico and not self.isTel:
+            #print(text)
+        if self.getTel:
+            self.dic['tel'] = data
+        elif self.getSite:
+            self.dic['site'] = data
+            
+    def handle_endtag(self, tag):
+        if tag == 'div' and self.isDetailServico:
+            self.isDetail = False
+            self.isDetailText = False
+            self.isDetailServico = False
+        self.isTel = False
+        self.isTelData = False
+        self.getTel = False
+        self.isWebData = False
+        self.getSite = False
+        
+    def getInfo(self):
+        return self.dic
+            
+            
