@@ -58,5 +58,7 @@ events = gather_events('https://agendasorocaba.com.br/comidas/brasileiro/')
 saveDB('restaurante')
 events = gather_events('https://agendasorocaba.com.br/comidas/diversos/')
 saveDB('restaurante')
+events = gather_events('https://agendasorocaba.com.br/cultura/')
+saveDB('cultura')
 
 print("events inserted")
