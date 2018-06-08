@@ -1,6 +1,5 @@
 '''
 Created on 1 de fev de 2018
-
 @author: Bruno
 '''
 from urllib.request import urlopen
@@ -27,7 +26,7 @@ db.authenticate(DB_USER, DB_PASS)
 
 def gather_events(page_url):
         html_string =''
-        if True:#try:
+        try:
             response = urlopen(page_url)
             print('conected')
             if 'text/html' in response.getheader('Content-Type'):
@@ -35,9 +34,9 @@ def gather_events(page_url):
                 html_string = html_bytes.decode('utf-8')
             finder = LinkFinder(page_url, page_url)
             finder.feed(html_string)
-#         except:
-#             print('Error: can not crawl page')
-#             return set()
+        except:
+            print('Error: can not crawl page')
+            return set()
         return finder.get_events()
 
 def saveDB(eventType):

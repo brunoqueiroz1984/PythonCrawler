@@ -65,7 +65,7 @@ class LinkFinder(HTMLParser):
             self.dic['address'] = data
             self.dic['latitude'],self.dic['longitude'] = self.getCoordinates(data)
             self.events.append(self.dic)
-            print(self.dic)
+            print(str(self.dic).encode(encoding='utf_8'))
             self.dic = {}
     
     def handle_endtag(self, tag):
@@ -132,14 +132,19 @@ class DetailFinder(HTMLParser):
         self.getTel = False
         self.isWebData = False
         self.getSite = False
+        self.text = ''
         
     def handle_starttag(self, tag, attrs):
         if tag == 'div':
             for (attribute, value) in attrs:
                 if attribute == 'class' and value =='bigcon':
                     self.isDetail = True
+                if attribute == 'class' and value =='watributos':
+                    self.isDetail = False
+                if attribute == 'class' and value == 'cdivi':
+                    self.isDetail = True
                     
-        if self.isDetail and tag == 'p':
+        if self.isDetail and not self.isDetailServico and tag == 'p':
             self.isDetailText = True
             
         if self.isDetailText and tag == 'div':
@@ -162,11 +167,8 @@ class DetailFinder(HTMLParser):
     
     
     def handle_data(self, data):
-        text = ''
-#         if self.isDetailText:
-#             print('Texto: '+data)
-        #elif self.isDetailServico and not self.isTel:
-            #print(text)
+        if self.isDetailText:
+            self.text+= data
         if self.getTel:
             self.dic['tel'] = data
         elif self.getSite:
@@ -177,6 +179,8 @@ class DetailFinder(HTMLParser):
             self.isDetail = False
             self.isDetailText = False
             self.isDetailServico = False
+            self.dic['desc'] = self.text
+            self.text = ''
         self.isTel = False
         self.isTelData = False
         self.getTel = False
