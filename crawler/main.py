@@ -4,15 +4,7 @@ Created on 1 de fev de 2018
 '''
 from urllib.request import urlopen
 from link_finder import LinkFinder
-from domain import get_domain_name
 from pymongo import mongo_client
-
-PROJECT_NAME = 'Celebratio'
-HOMEPAGE = 'https://agendasorocaba.com.br/baladas/'
-DOMAIN_NAME = get_domain_name(HOMEPAGE)
-QUEUE_FILE = PROJECT_NAME + '/queue.txt'
-CRAWLED_FILE = PROJECT_NAME + '/crawled.txt'
-NUMBER_OF_THREADS = 1
 
 DB_NAME = 'celebration' 
 DB_HOST = 'ds161529.mlab.com'
@@ -41,11 +33,8 @@ def gather_events(page_url):
 
 def saveDB(eventType):
     for event in events:
-        if(collection.find({'name':event['name']}).count() == 0 ):
-            event['type'] = eventType
-            collection.insert_one(event)
-        else:
-            print('test')
+        event['type'] = eventType
+        collection.update_one({'name':event['name']},{'$set': event}, upsert = True)
     
 
 collection = db['events']
@@ -57,6 +46,16 @@ saveDB('bar')
 events = gather_events('https://agendasorocaba.com.br/comidas/brasileiro/')
 saveDB('restaurante')
 events = gather_events('https://agendasorocaba.com.br/comidas/diversos/')
+saveDB('restaurante')
+events = gather_events("https://agendasorocaba.com.br/comidas/vegetarianos/")
+saveDB('restaurante')
+events = gather_events("https://agendasorocaba.com.br/comidas/batatarias/")
+saveDB('restaurante')
+events = gather_events("https://agendasorocaba.com.br/comidas/japones/")
+saveDB('restaurante')
+events = gather_events('https://agendasorocaba.com.br/comidas/pizzarias/')
+saveDB('restaurante')
+events = gather_events('https://agendasorocaba.com.br/comidas/massas/')
 saveDB('restaurante')
 events = gather_events('https://agendasorocaba.com.br/cultura/')
 saveDB('cultura')
